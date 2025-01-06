@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boardian.ai | Premium Flight Tracking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --error: #ef4444;
+            --gold: #ffd700;
+            --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            --hover-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .nav {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            width: fit-content;
+        }
+
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .search-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 1.5rem auto;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        #flightCode {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--surface);
+        }
+
+        #flightCode:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 0 auto;
+            max-width: 900px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .cards-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .premium-card {
+            background: var(--surface);
+            border-radius: 1.5rem;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .premium-card:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: var(--surface);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .card-header h3 {
+            font-size: 1rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .insight-item {
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.03);
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(99, 102, 241, 0.05);
+        }
+
+        .insight-item:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .insight-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .insight-item i {
+            color: var(--primary);
+            margin-right: 0.75rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        .star-rating {
+            color: var(--gold);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid rgba(99, 102, 241, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .error {
+            display: none;
+            background: #fef2f2;
+            color: var(--error);
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            margin: 1rem auto;
+            max-width: 600px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .search-button {
+                width: 100%;
+                justify-content: center;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="logo">
+            <i class="fas fa-plane-departure"></i>
+            <span>Boardian.ai</span>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="search-section">
+            <h1 style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--text);">
+                Premium Flight Tracking
+            </h1>
+            <p style="color: var(--text-light);">Experience luxury air travel with real-time AI insights</p>
+            
+            <div class="search-container">
+                <div class="input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" 
+                           id="flightCode" 
+                           placeholder="Enter flight code (e.g., MDA921)" 
+                           autocomplete="off">
+                </div>
+                <button class="search-button" id="trackButton">
+                    <span>Track Flight</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <span>Processing flight data...</span>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="cards-container" id="cardsContainer">
+            <div class="premium-card">
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-plane"></i>
+                        Flight Status
+                    </h3>
+                </div>
+                <div class="card-content" id="flightInfo">
+                    <div class="star-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span style="color: var(--text-light); margin-left: 0.5rem; font-size: 0.875rem;">4.8</span>
+                    </div>
+                    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">First Class</h2>
+                    <p style="color: var(--text-light); margin-bottom: 1rem;">Premium Cabin Experience</p>
+                    <div class="status-badge">
+                        <i class="fas fa-check-circle"></i>
+                        <span>On Schedule</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-card">
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-star"></i>
+                        Flight Insights
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="insight-item">
+                        <i class="fas fa-shield-alt"></i>
+                        Perfect safety record maintained for over 5 years
+                    </div>
+                    <div class="insight-item">
+                        <i class="fas fa-clock"></i>
+                        92% early arrival rate on this route
+                    </div>
+                    <div class="insight-item">
+                        <i class="fas fa-crown"></i>
+                        Premium cabin with enhanced comfort features
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        class FlightTracker {
+            constructor() {
+                this.ws = null;
+                this.connect();
+                this.setupEventListeners();
+            }
+
+            connect() {
+                this.ws = new WebSocket(`ws://${window.location.host}/ws`);
+                this.setupWebSocket();
+            }
+
+            setupEventListeners() {
+                document.getElementById('trackButton').addEventListener('click', () => this.trackFlight());
+                document.getElementById('flightCode').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.trackFlight();
+                });
+            }
+
+            setupWebSocket() {
+                this.ws.onmessage = (event) => {
+                    document.getElementById('loading').style.display = 'none';
+                    this.showFlightInfo(event.data);
+                };
+
+                this.ws.onclose = () => {
+                    console.log('WebSocket connection closed');
+                    setTimeout(() => this.connect(), 1000);
+                };
+
+                this.ws.onerror = () => {
+                    document.getElementById('loading').style.display = 'none';
+                    this.showError('Connection error. Please try again later.');
+                };
+            }
+
+            trackFlight() {
+                const flightCode = document.getElementById('flightCode').value.trim();
+                if (this.validateFlightCode(flightCode)) {
+                    document.getElementById('loading').style.display = 'flex';
+                    document.getElementById('error').style.display = 'none';
+                    document.getElementById('cardsContainer').classList.add('visible');
+                    if (this.ws?.readyState === WebSocket.OPEN) {
+                        this.ws.send(flightCode);
+                    } else {
+                        this.showError('Connection not available. Please try again.');
+                    }
+                } else {
+                    this.showError('Please enter a valid flight code');
+                }
+            }
+
+            validateFlightCode(code) {
+                return code.length > 0 && /^[A-Z0-9]{2,8}$/i.test(code);
+            }
+
+            showFlightInfo(text) {
+                const flightInfo = document.getElementById('flightInfo');
+                const infoHtml = `
+                    <div class="star-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span style="color: var(--text-light); margin-left: 0.5rem; font-size: 0.875rem;">4.8</span>
+                    </div>
+                    <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">First Class</h2>
+                    <p style="color: var(--text-light); margin-bottom: 1rem;">Premium Cabin Experience</p>
+                    <p style="margin-bottom: 1rem;">${text}</p>
+                    <div class="status-badge">
+                        <i class="fas fa-check-circle"></i>
+                        <span>On Schedule</span>
+                    </div>
+                `;
+                flightInfo.innerHTML = infoHtml;
+            }
+
+            showError(message) {
+                const error = document.getElementById('error');
+                error.textContent = message;
+                error.style.display = 'block';
+            }
+        }
+
+        new FlightTracker();
+    </script>
+</body>
+</html>
